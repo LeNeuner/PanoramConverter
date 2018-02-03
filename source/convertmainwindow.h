@@ -15,8 +15,16 @@ public:
     explicit ConvertMainWindow(QWidget *parent = 0);
     ~ConvertMainWindow();
 
+private slots:
+    void on_bLoad_clicked();
+    void on_bSave_clicked();
+    void on_bConvert_clicked();
+
 private:
-    Ui::ConvertMainWindow *ui;
+    Ui::ConvertMainWindow   *ui;
+    QImage                  *srcImage   = nullptr;
+    QImage                  *dstImage   = nullptr;
+    int                     statBarTout = 2000;
 };
 
 #endif // CONVERTMAINWINDOW_H
