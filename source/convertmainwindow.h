@@ -2,6 +2,7 @@
 #define CONVERTMAINWINDOW_H
 
 #include <QMainWindow>
+#include <QObject>
 
 namespace Ui {
 class ConvertMainWindow;
@@ -19,6 +20,8 @@ private slots:
     void on_bLoad_clicked();
     void on_bSave_clicked();
     void on_bConvert_clicked();
+
+    void setProgress(int val);
 
 private:
     Ui::ConvertMainWindow   *ui;

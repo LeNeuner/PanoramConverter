@@ -41,7 +41,7 @@ void ConvertMainWindow::on_bLoad_clicked()
             ui->lblSrcImage->setPixmap(QPixmap::fromImage(*srcImage));
             ui->lblSrcImage->setScaledContents(true);
 
-            // масштабирование больших изображений
+            // масштабирование больших изображений временно так
             int w = srcImage->width();
             int h = srcImage->height();
             double ratio = w / h;
@@ -63,7 +63,8 @@ void ConvertMainWindow::on_bLoad_clicked()
     else
         this->statusBar()->showMessage("Ошибка загрузки изображения",   statBarTout);
 
-    *dstImage = (*srcImage).copy();
+    *dstImage = QImage(srcImage->width(), srcImage->width() * 3 / 4, QImage::Format_RGB32);
+    dstImage->fill(Qt::black);
 }
 
 void ConvertMainWindow::on_bSave_clicked()
@@ -84,17 +85,34 @@ void ConvertMainWindow::on_bSave_clicked()
 
 void ConvertMainWindow::on_bConvert_clicked()
 {
-    ui->progressBar->setValue(0);
-    QRgb rgb;
-    for (int x = 0; x < dstImage->width(); x++)
+    // конвертирование изображения
+    ImageConverter* converter = new ImageConverter(srcImage, dstImage);
+
+    // отображение прогресса обработки
+    connect(converter, SIGNAL(needProgressChange(int)),
+            this, SLOT(setProgress(int)));
+
+    ui->lblDstImage->setPixmap(QPixmap::fromImage(*dstImage));
+    ui->lblDstImage->setScaledContents(true);
+
+    // масштабирование больших изображений временно так
+    int w = dstImage->width();
+    int h = dstImage->height();
+    double ratio = w / h;
+    int maxWidth = 400;
+
+    qDebug() << "w:  " << w;
+    qDebug() << "h:  " << h;
+
+    if (w > 400)
     {
-        for (int y = 100; y < 200; y++)
-        {
-            rgb = qRgb(255, 0, 0);
-            dstImage->setPixel(x, y, rgb);
-        }
-        ui->progressBar->setValue(static_cast<int>((x * 100) / dstImage->width()) + 1);
+        ui->lblDstImage->setFixedWidth(maxWidth);
+        ui->lblDstImage->setFixedHeight(abs(static_cast<int>(maxWidth/ratio)));
     }
 
-    ImageConverter test(srcImage, dstImage);
+}
+
+void ConvertMainWindow::setProgress(int val)
+{
+    ui->progressBar->setValue(val);
 }

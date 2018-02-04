@@ -51,4 +51,7 @@ SOURCES +=  main.cpp                \
 HEADERS +=  convertmainwindow.h     \
             imageconverter.h
 
-FORMS +=    convertmainwindow.ui
+FORMS   +=  convertmainwindow.ui
+
+RESOURCES += icons/iconres.qrc
+
