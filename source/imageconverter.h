@@ -14,31 +14,38 @@ enum class CubeFaceType : unsigned int
     Bottom
 };
 
-// хранение точки на кубе
-typedef struct CubePoint
-{
-    double x;
-    double y;
-    double z;
-    CubeFaceType type;
-} CubePoint;
-
 class ImageConverter : public QObject
 {
     Q_OBJECT
 public:
-    explicit ImageConverter(const QImage* srcImage, QImage* dstImage,
-                            QObject *parent = nullptr);
+    explicit ImageConverter(QObject *parent = nullptr);
+
+    /**
+     * @brief convertImages Конвертирует входное изображение из
+     * эквиректангулярной проекции в кубическую (в развертке)
+     * @param srcImage, указатель на входное изображение
+     * @param dstImage, указатель на выходное изображение
+     * @return true, если конвертация прошла успешно, false иначе
+     */
+    bool convertImages(const QImage *srcImage, QImage *dstImage);
+    /**
+     * @brief convertWithInterpolation Конвертирует входное изображение из
+     * эквиректангулярной проекции в кубическую (в развертке) c использованием
+     * обратного преобразования и интерполяции
+     * @param srcImage, указатель на входное изображение
+     * @param dstImage, указатель на выходное изображение
+     * @return true, если конвертация прошла успешно, false иначе
+     */
+    bool convertWithInterpolation(const QImage *srcImage, QImage *dstImage);
 
 signals:
     void needProgressChange(int val);
 
 private:
-    const QImage *mSrcImage = nullptr;
-    QImage       *mDstImage = nullptr;
-
     bool projectSwitch(const double theta, const double phi, double* const xyz, CubeFaceType &type);
     bool projectToPlane(const double* xyz, const CubeFaceType cubeType, const int cubeSize, int* const xy);
+
+    bool projectToCubic(const int *xy, const CubeFaceType &cubeType, const int &cubeSize, double* const xyz);
 
     void projectToFront(const double theta, const double phi, double* const xyz, CubeFaceType &type);
     void projectToLeft(const double theta, const double phi, double* const xyz, CubeFaceType &type);
@@ -46,6 +53,8 @@ private:
     void projectToRight(const double theta, const double phi, double* const xyz, CubeFaceType &type);
     void projectToTop(const double theta, const double phi, double* const xyz, CubeFaceType &type);
     void projectToBottom(const double theta, const double phi, double* const xyz, CubeFaceType &type);
+
+    CubeFaceType faceValToCubeType(const int &faceVal);
 };
 
 #endif // IMAGECONVERTER_H

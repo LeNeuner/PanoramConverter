@@ -1,7 +1,8 @@
 #-------------------------------------------------
 #
 # Project created by QtCreator 2018-01-31T16:54:15
-#
+# PanoramConverter
+# Author: Karimov Konstantin
 #-------------------------------------------------
 
 QT       += core gui widgets

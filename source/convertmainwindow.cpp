@@ -27,56 +27,53 @@ ConvertMainWindow::~ConvertMainWindow()
 
 void ConvertMainWindow::on_bLoad_clicked()
 {
+    // получение пути к исходному изображению
     QString filename = QFileDialog::getOpenFileName(this, tr("Open Image"),
                                     QDir::currentPath(),  tr("Image Files (*.png *.jpg *.bmp)"));
+    // загрузка изображения
     bool loadRes = false;
     if ((!filename.isEmpty()) && (!filename.isNull()))
     {
         loadRes = srcImage->load(filename);
-
         if (loadRes)
         {
-            qDebug() << "img size:  " << srcImage->size();
+            // масштабирование больших изображений
+            QSize imageSize = QSize(srcImage->width(), srcImage->height());
+            QSize labelSize = ui->lblSrcImage->size();
 
+            if (imageSize.height() > labelSize.height() || imageSize.width() > labelSize.width())
+                imageSize.scale((labelSize), Qt::KeepAspectRatio);
+
+            // вывод результатов загрузки
             ui->lblSrcImage->setPixmap(QPixmap::fromImage(*srcImage));
             ui->lblSrcImage->setScaledContents(true);
-
-            // масштабирование больших изображений временно так
-            int w = srcImage->width();
-            int h = srcImage->height();
-            double ratio = w / h;
-            int maxWidth = 400;
-
-            qDebug() << "w:  " << w;
-            qDebug() << "h:  " << h;
-
-            if (w > 400)
-            {
-                ui->lblSrcImage->setFixedWidth(maxWidth);
-                ui->lblSrcImage->setFixedHeight(abs(static_cast<int>(maxWidth/ratio)));
-            }
         }
     }
 
+    // обработка результатов загрузки
     if (loadRes)
         this->statusBar()->showMessage("Изображение успешно загружено", statBarTout);
     else
         this->statusBar()->showMessage("Ошибка загрузки изображения",   statBarTout);
 
+    // установка формата выходного изображения в зависимости от формата входного
     *dstImage = QImage(srcImage->width(), srcImage->width() * 3 / 4, QImage::Format_RGB32);
     dstImage->fill(Qt::black);
 }
 
 void ConvertMainWindow::on_bSave_clicked()
 {
+    // получение пути для сохранения выходного изображения
     QString filename = QFileDialog::getSaveFileName(this, tr("Save image"),
                                     QDir::currentPath(),  tr("Image Files (*.png *.jpg *.bmp)"));
+    // сохранение изображения
     bool saveRes = false;
     if ((!filename.isEmpty()) && (!filename.isNull()))
     {
         saveRes = dstImage->save(filename);
     }
 
+    // обработка результатов сохранения
     if (saveRes)
         this->statusBar()->showMessage("Изображение успешно сохранено", statBarTout);
     else
@@ -85,34 +82,37 @@ void ConvertMainWindow::on_bSave_clicked()
 
 void ConvertMainWindow::on_bConvert_clicked()
 {
-    // конвертирование изображения
-    ImageConverter* converter = new ImageConverter(srcImage, dstImage);
+    // создание конвертора
+    ImageConverter* converter = new ImageConverter(this);
 
     // отображение прогресса обработки
     connect(converter, SIGNAL(needProgressChange(int)),
             this, SLOT(setProgress(int)));
 
-    ui->lblDstImage->setPixmap(QPixmap::fromImage(*dstImage));
-    ui->lblDstImage->setScaledContents(true);
-
-    // масштабирование больших изображений временно так
-    int w = dstImage->width();
-    int h = dstImage->height();
-    double ratio = w / h;
-    int maxWidth = 400;
-
-    qDebug() << "w:  " << w;
-    qDebug() << "h:  " << h;
-
-    if (w > 400)
+    // конвертирование изображения
+//    bool convRes = converter->convertImages(srcImage, dstImage);
+    bool convRes = converter->convertWithInterpolation(srcImage, dstImage);
+    if (!convRes)
     {
-        ui->lblDstImage->setFixedWidth(maxWidth);
-        ui->lblDstImage->setFixedHeight(abs(static_cast<int>(maxWidth/ratio)));
+        this->statusBar()->showMessage("Ошибка конвертации изображения", statBarTout);
+        return;
     }
 
+    // масштабирование больших изображений
+    QSize imageSize = QSize(dstImage->width(), dstImage->height());
+    QSize labelSize = ui->lblDstImage->size();
+
+    if (imageSize.height() > labelSize.height() || imageSize.width() > labelSize.width())
+        imageSize.scale((labelSize), Qt::KeepAspectRatio);
+
+    // вывод результатов конвертирования
+    ui->lblDstImage->setPixmap(QPixmap::fromImage(*dstImage));
+    ui->lblDstImage->setScaledContents(true);
+    this->statusBar()->showMessage("Конвертация изображения завершена", statBarTout);
 }
 
 void ConvertMainWindow::setProgress(int val)
 {
+    // отображение прогресса конвертации
     ui->progressBar->setValue(val);
 }
