@@ -7,6 +7,7 @@
 #include <QDebug>
 
 #include "imageconverter.h"
+#include "openglwindow.h"
 
 ConvertMainWindow::ConvertMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -47,6 +48,9 @@ void ConvertMainWindow::on_bLoad_clicked()
             // вывод результатов загрузки
             ui->lblSrcImage->setPixmap(QPixmap::fromImage(*srcImage));
             ui->lblSrcImage->setScaledContents(true);
+
+            // разблокировка кнопки расчета на GPU
+            ui->bGPU->setEnabled(true);
         }
     }
 
@@ -111,8 +115,16 @@ void ConvertMainWindow::on_bConvert_clicked()
     this->statusBar()->showMessage("Конвертация изображения завершена", statBarTout);
 }
 
+void ConvertMainWindow::on_bGPU_clicked()
+{
+    OpenGLWindow *openGLWin = new OpenGLWindow(srcImage, this);
+    openGLWin->show();
+}
+
 void ConvertMainWindow::setProgress(int val)
 {
     // отображение прогресса конвертации
     ui->progressBar->setValue(val);
 }
+
+

@@ -47,12 +47,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES +=  main.cpp                \
             convertmainwindow.cpp   \
-            imageconverter.cpp
+            imageconverter.cpp      \
+            geometryengine.cpp      \
+            mainwidget.cpp          \
+            openglwindow.cpp
 
 HEADERS +=  convertmainwindow.h     \
-            imageconverter.h
+            imageconverter.h        \
+            geometryengine.h        \
+            mainwidget.h            \
+            openglwindow.h
 
-FORMS   +=  convertmainwindow.ui
+FORMS   +=  convertmainwindow.ui    \
+            openglwindow.ui
 
-RESOURCES += icons/iconres.qrc
+RESOURCES += icons/iconres.qrc      \
+             shaders.qrc
 

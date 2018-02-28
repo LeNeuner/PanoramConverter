@@ -20,6 +20,7 @@ private slots:
     void on_bLoad_clicked();
     void on_bSave_clicked();
     void on_bConvert_clicked();
+    void on_bGPU_clicked();
 
     void setProgress(int val);
 
